@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Subscriber;
+use App\Notifications\NewSubscriber;
 use Illuminate\Http\Request;
 
 class SubscriberController extends Controller
@@ -25,7 +26,9 @@ class SubscriberController extends Controller
 
             //Schedule a notification email to let the subscriber know that he has subscribed
             //TODO
-
+            if ($saved) {
+                $subscriber->notify(new NewSubscriber($subscriber->email));
+            }
         } catch (\Exception $e) {
             // return eror
             return response()->json(['error' => $e->getMessage()], 400);
