@@ -30,7 +30,7 @@ class SubscriberController extends Controller
                 $subscriber->notify(new NewSubscriber($subscriber->email));
             }
         } catch (\Exception $e) {
-            // return eror
+            // return error
             return response()->json(['error' => $e->getMessage()], 400);
         }
 
