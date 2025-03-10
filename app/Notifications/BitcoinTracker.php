@@ -34,9 +34,14 @@ class BitcoinTracker extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
+        $hours = $this->data['period'] == 1 ? ' hour.' : ' hours.';
+
         return (new MailMessage)
-            ->line("Hi {$this->data['email']},")
-            ->line('The Bitcoin Price Has Changed with more than ' . $this->data['user-percent'] . '% in the last ' . $this->data['period'] . ' hours.')
+            ->line('The Bitcoin price has changed with more than ' 
+                . $this->data['userPercent'] . '% in the last ' . $this->data['period'] . $hours)
+            ->line('Old price: ' . $this->data['oldPrice'])
+            ->line('Current price: ' . $this->data['currentPrice'])
+            ->line('% change: ' . $this->data['percent'])
             ->action('Unsubscribe', url(route('unsubscribe') . '?email=' . $this->data['email']))
             ->line('Thank you for using our application!');
     }
