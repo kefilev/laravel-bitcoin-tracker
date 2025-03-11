@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Subscriber;
 use App\Notifications\NewSubscriber;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class SubscriberController extends Controller
 {
@@ -16,22 +17,28 @@ class SubscriberController extends Controller
                 'percent' => 'bail|required|numeric',
                 'period' => 'bail|required|in:1,6,24'
             ]);
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            // return error
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
 
+        try {
             //Save to DB
             $subscriber = new Subscriber();
             $subscriber->email = $request->query('email');
             $subscriber->percent = $request->query('percent');
             $subscriber->period = $request->query('period');
             $saved = $subscriber->save();
-
-            //Schedule a notification email to let the subscriber know that he has subscribed
-            //TODO
-            if ($saved) {
-                $subscriber->notify(new NewSubscriber($subscriber->email));
-            }
         } catch (\Exception $e) {
+            Log::error($e->getMessage());
             // return error
-            return response()->json(['error' => $e->getMessage()], 400);
+            return response()->json(['error' => 'Server Error'], 500);
+        }
+
+        //Schedule a notification email to let the subscriber know that he has subscribed
+        if ($saved) {
+            $subscriber->notify(new NewSubscriber($subscriber->email));
         }
 
         //Return OK
@@ -45,15 +52,22 @@ class SubscriberController extends Controller
             $validated = $request->validate([
                 'email' => 'bail|required||email:rfc,dns|exists:subscribers'
             ]);
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            // return error
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
 
-            //forceDelete from DB the unsubscribed users
+        try {
+            //Delete from DB the unsubscribed user
             Subscriber::where('email', $validated['email'])->delete();
 
             //Schedule a notification to let the subscriber know that he is no longer a subscriber
             //TODO
         } catch (\Exception $e) {
+            Log::error($e->getMessage());
             // return error
-            return response()->json(['error' => $e->getMessage()], 400);
+            return response()->json(['error' => 'Server Error'], 500);
         }
 
         //Return OK
