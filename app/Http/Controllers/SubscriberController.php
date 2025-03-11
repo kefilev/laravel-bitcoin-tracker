@@ -2,33 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SubscribeRequest;
+use App\Http\Requests\UnsubscribeRequest;
 use App\Models\Subscriber;
 use App\Notifications\NewSubscriber;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class SubscriberController extends Controller
 {
-    public function subscribe(Request $request) {
-        try {
-            //Validate params
-            $validated = $request->validate([
-                'email' => 'bail|required||email:rfc,dns|unique:subscribers',
-                'percent' => 'bail|required|numeric',
-                'period' => 'bail|required|in:1,6,24'
-            ]);
-        } catch (\Exception $e) {
-            Log::error($e->getMessage());
-            // return error
-            return response()->json(['error' => $e->getMessage()], 400);
-        }
-
+    public function subscribe(SubscribeRequest $request) {
         try {
             //Save to DB
             $subscriber = new Subscriber();
-            $subscriber->email = $request->query('email');
-            $subscriber->percent = $request->query('percent');
-            $subscriber->period = $request->query('period');
+            $subscriber->email = $request->input('email');
+            $subscriber->percent = $request->input('percent');
+            $subscriber->period = $request->input('period');
             $saved = $subscriber->save();
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -42,25 +30,14 @@ class SubscriberController extends Controller
         }
 
         //Return OK
-        return response()->json(['success' => "You have successfully subscribed your email - {$validated['email']} for the bitcoin tracker"], 200);
+        return response()->json(['success' => "You have successfully subscribed your email - {$request->input('email')} for the bitcoin tracker"], 200);
     }
 
     
-    public function unsubscribe(Request $request) {
-        try {
-            //Validate params
-            $validated = $request->validate([
-                'email' => 'bail|required||email:rfc,dns|exists:subscribers'
-            ]);
-        } catch (\Exception $e) {
-            Log::error($e->getMessage());
-            // return error
-            return response()->json(['error' => $e->getMessage()], 400);
-        }
-
+    public function unsubscribe(UnsubscribeRequest $request) {
         try {
             //Delete from DB the unsubscribed user
-            Subscriber::where('email', $validated['email'])->delete();
+            Subscriber::where('email', $request->input('email'))->delete();
 
             //Schedule a notification to let the subscriber know that he is no longer a subscriber
             //TODO
@@ -71,6 +48,6 @@ class SubscriberController extends Controller
         }
 
         //Return OK
-        return response()->json(['success' => "You have successfully unsubscribed your email - {$validated['email']} from the bitcoin tracker"], 200);
+        return response()->json(['success' => "You have successfully unsubscribed your email - {$request->input('email')} from the bitcoin tracker"], 200);
     }
 }

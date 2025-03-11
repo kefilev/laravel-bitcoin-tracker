@@ -25,6 +25,7 @@ class BitFinexService
             return $response->json()[6]; // Last price
         }
 
+        //Throw an exception (not just log) because we want to stop execution. This will also make a log
         throw new \RuntimeException("BitFinexService class getBitcoinPrice() not working.");
     }
 
