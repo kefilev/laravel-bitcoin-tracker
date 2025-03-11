@@ -35,4 +35,6 @@ return [
         ],
     ],
 
+    'bitfinex_api' => env('BITFINEX_API_URL')
+
 ];

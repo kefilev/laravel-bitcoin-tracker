@@ -7,7 +7,12 @@ use Illuminate\Support\Facades\Log;
 
 class BitFinexService
 {
-    private $baseUrl = "https://api-pub.bitfinex.com/v2/";
+    private $baseUrl;
+
+    public function __construct()
+    {
+        $this->baseUrl = config('services.bitfinex_api');
+    }
 
     /**
      * Fetch the current Bitcoin price.

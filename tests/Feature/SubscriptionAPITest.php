@@ -46,6 +46,12 @@ class SubscriptionAPITest extends TestCase
         $response->assertStatus(400);
     }
 
+    public function test_the_app_returns_bad_request_when_period_is_not_1_6_or_24(): void
+    {
+        $response = $this->get('/api/subscribe?email=test@test.com&percent=3&period=2');
+        $response->assertStatus(400);
+    }
+
     public function test_the_app_returns_bad_request_when_email_is_not_sent(): void
     {
         $response = $this->get('/api/subscribe?percent=3&period=24');
