@@ -36,15 +36,23 @@ class SendBitcoinInfoNotifications extends Command
 
         //Get data from external API
         $bitfinex = new BitFinexService();
-        $currentPrice = $bitfinex->getBitcoinPrice();
-        $oldPrice = $bitfinex->getBitcoinPriceHoursAgo($period);
-        $change = $bitfinex->calculatePercentageChange($oldPrice, $currentPrice);
+
+        $currentPriceUSD = $bitfinex->getBitcoinPrice('USD');
+        $oldPriceUSD = $bitfinex->getBitcoinPriceHoursAgo($period, 'USD');
+        $changeUSD = $bitfinex->calculatePercentageChange($oldPriceUSD, $currentPriceUSD);
+
+        $currentPriceEUR = $bitfinex->getBitcoinPrice('EUR');
+        $oldPriceEUR = $bitfinex->getBitcoinPriceHoursAgo($period, 'EUR');
+        $changeEUR = $bitfinex->calculatePercentageChange($oldPriceEUR, $currentPriceEUR);
 
         $data = [
             'period' => $period,
-            'percent' => $change,
-            'currentPrice' => $currentPrice,
-            'oldPrice' => $oldPrice
+            'percentUSD' => $changeUSD,
+            'currentPriceUSD' => $currentPriceUSD,
+            'oldPriceUSD' => $oldPriceUSD,
+            'percentEUR' => $changeEUR,
+            'currentPriceEUR' => $currentPriceEUR,
+            'oldPriceEUR' => $oldPriceEUR
         ];
 
         //Get the correct subscribers for this period
@@ -52,7 +60,8 @@ class SendBitcoinInfoNotifications extends Command
 
         //Send notifications using queued jobs
         foreach ($subscribers as $subscriber) {
-            if (abs($data['percent']) > floatval($subscriber->percent)) {
+            if (abs($data['percentUSD']) > floatval($subscriber->percent) || 
+                abs($data['percentEUR']) > floatval($subscriber->percent)) {
 
                 $data['userPercent'] = $subscriber->percent;
                 $data['email'] = $subscriber->email;

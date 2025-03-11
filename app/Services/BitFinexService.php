@@ -12,9 +12,9 @@ class BitFinexService
     /**
      * Fetch the current Bitcoin price.
      */
-    public function getBitcoinPrice()
+    public function getBitcoinPrice($currency = 'USD')
     {
-        $response = Http::get($this->baseUrl . "ticker/tBTCUSD");
+        $response = Http::get($this->baseUrl . "ticker/tBTC" . $currency);
 
         if ($response->successful()) {
             return $response->json()[6]; // Last price
@@ -26,10 +26,10 @@ class BitFinexService
     /**
      * Fetch Bitcoin's price from a specified number of hours ago.
      */
-    public function getBitcoinPriceHoursAgo($hours)
+    public function getBitcoinPriceHoursAgo($hours, $currency = 'USD')
     {
         $limit = $hours; // Number of 1-hour candles to go back
-        $response = Http::get($this->baseUrl . "candles/trade:1h:tBTCUSD/hist?limit=$limit");
+        $response = Http::get($this->baseUrl . "candles/trade:1h:tBTC$currency/hist?limit=$limit");
 
         if ($response->successful() && count($response->json()) >= $limit) {
             return $response->json()[$limit - 1][4]; // Closing price from X hours ago
