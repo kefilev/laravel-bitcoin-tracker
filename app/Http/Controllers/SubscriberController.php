@@ -13,21 +13,15 @@ class SubscriberController extends Controller
     public function subscribe(SubscribeRequest $request) {
         try {
             //Save to DB
-            $subscriber = new Subscriber();
-            $subscriber->email = $request->input('email');
-            $subscriber->percent = $request->input('percent');
-            $subscriber->period = $request->input('period');
-            $saved = $subscriber->save();
+            $subscriber = Subscriber::create($request->only(['email', 'percent', 'period']));
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             // return error
             return response()->json(['error' => 'Server Error'], 500);
         }
 
-        //Schedule a notification email to let the subscriber know that he has subscribed
-        if ($saved) {
-            $subscriber->notify(new NewSubscriber($subscriber->email));
-        }
+        //Schedule a welcome notification email to the subscriber
+        $subscriber->notify(new NewSubscriber($subscriber->email));
 
         //Return OK
         return response()->json(['success' => "You have successfully subscribed your email - {$request->input('email')} for the bitcoin tracker"], 200);
