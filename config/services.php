@@ -35,6 +35,7 @@ return [
         ],
     ],
 
-    'bitfinex_api' => env('BITFINEX_API_URL')
+    'bitfinex_api' => env('BITFINEX_API_URL'),
+    'bitfinex_currencies' => ['USD', 'EUR']
 
 ];

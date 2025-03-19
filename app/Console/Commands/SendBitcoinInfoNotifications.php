@@ -6,9 +6,6 @@ use App\Models\Subscriber;
 use App\Notifications\BitcoinTracker;
 use App\Services\BitFinexService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Notification;
 
 class SendBitcoinInfoNotifications extends Command
 {
@@ -33,41 +30,30 @@ class SendBitcoinInfoNotifications extends Command
     {
         //Get the period from the current console schedule command
         $period = $this->argument('period');
-
-        //Get data from external API
+        $data = ['period' => $period];
+        $currencies = config('services.bitfinex_currencies');
         $bitfinex = new BitFinexService();
 
-        $currentPriceUSD = $bitfinex->getBitcoinPrice('USD');
-        $oldPriceUSD = $bitfinex->getBitcoinPriceHoursAgo($period, 'USD');
-        $changeUSD = $bitfinex->calculatePercentageChange($oldPriceUSD, $currentPriceUSD);
-
-        $currentPriceEUR = $bitfinex->getBitcoinPrice('EUR');
-        $oldPriceEUR = $bitfinex->getBitcoinPriceHoursAgo($period, 'EUR');
-        $changeEUR = $bitfinex->calculatePercentageChange($oldPriceEUR, $currentPriceEUR);
-
-        $data = [
-            'period' => $period,
-            'percentUSD' => $changeUSD,
-            'currentPriceUSD' => $currentPriceUSD,
-            'oldPriceUSD' => $oldPriceUSD,
-            'percentEUR' => $changeEUR,
-            'currentPriceEUR' => $currentPriceEUR,
-            'oldPriceEUR' => $oldPriceEUR
-        ];
+        foreach($currencies as $currency) {
+            $prices = $bitfinex->getBitcoinPriceHistory($period, $currency);
+            $data['threshold' . $currency] = $bitfinex->getBiggestPriceFluctuation($prices);
+        }
 
         //Get the correct subscribers for this period
         $subscribers = Subscriber::where('period', $period)->get();
 
         //Send notifications using queued jobs
         foreach ($subscribers as $subscriber) {
-            if (abs($data['percentUSD']) > floatval($subscriber->percent) || 
-                abs($data['percentEUR']) > floatval($subscriber->percent)) {
+            foreach($currencies as $currency) {
+                if ($data['threshold' . $currency] > floatval($subscriber->percent)) {
 
-                $data['userPercent'] = $subscriber->percent;
-                $data['email'] = $subscriber->email;
-
-                $subscriber->notify(new BitcoinTracker($data));
-            }
+                    $data['userPercent'] = $subscriber->percent;
+                    $data['email'] = $subscriber->email;
+    
+                    $subscriber->notify(new BitcoinTracker($data));
+                    break; //send only one email per subscriber
+                }
+            } 
         }
     }
 }

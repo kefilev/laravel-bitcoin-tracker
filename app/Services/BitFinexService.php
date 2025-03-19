@@ -2,12 +2,13 @@
 
 namespace App\Services;
 
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class BitFinexService
 {
-    private $baseUrl;
+    private string $baseUrl;
 
     public function __construct()
     {
@@ -15,44 +16,44 @@ class BitFinexService
     }
 
     /**
-     * Fetch the current Bitcoin price.
+     * Fetch Bitcoin's historical prices for the specified number of hours.
      */
-    public function getBitcoinPrice($currency = 'USD')
+    public function getBitcoinPriceHistory(int $hours, string $currency = 'USD'): array
     {
-        $response = Http::get($this->baseUrl . "ticker/tBTC" . $currency);
+        $response = Http::get(url: $this->baseUrl . "candles/trade:1h:tBTC$currency/hist?limit=$hours");
+        $prices = [];
 
         if ($response->successful()) {
-            return $response->json()[6]; // Last price
+            $prices = collect($response->json())->pluck(4)->reverse()->values()->toArray(); // Extract closing prices and reverse order
         }
 
-        //Throw an exception (not just log) because we want to stop execution. This will also make a log
-        throw new \RuntimeException("BitFinexService class getBitcoinPrice() not working.");
+        if (count($prices) < $hours) {
+            throw new \RuntimeException("Insufficient data for price fluctuation analysis.");
+        }
+
+        return $prices;
     }
 
     /**
-     * Fetch Bitcoin's price from a specified number of hours ago.
+     * Check if the price fluctuated above or beyond a given percentage over a period.
      */
-    public function getBitcoinPriceHoursAgo($hours, $currency = 'USD')
+    public function getBiggestPriceFluctuation(array $prices): float
     {
-        $limit = $hours; // Number of 1-hour candles to go back
-        $response = Http::get($this->baseUrl . "candles/trade:1h:tBTC$currency/hist?limit=$limit");
+        // Get the highest and lowest prices in the period
+        $highestPrice = max($prices);
+        $lowestPrice = min($prices);
 
-        if ($response->successful() && count($response->json()) >= $limit) {
-            return $response->json()[$limit - 1][4]; // Closing price from X hours ago
-        }
+        // Get the price from the start of the period
+        $startPrice = $prices[0];
 
-        throw new \RuntimeException("BitFinexService class getBitcoinPriceHoursAgo() not working.");
-    }
+        // Calculate percentage fluctuations
+        $increasePercentage = (($highestPrice - $startPrice) / $startPrice) * 100;
+        $decreasePercentage = (($lowestPrice - $startPrice) / $startPrice) * 100;
 
-    /**
-     * Calculate percentage change between two prices.
-     */
-    public function calculatePercentageChange($oldPrice, $currentPrice)
-    {
-        if ($oldPrice && $currentPrice) {
-            return (($currentPrice - $oldPrice) / $oldPrice) * 100;
-        }
+        // Log::info("Price fluctuation check: Start Price: $startPrice, High: $highestPrice, Low: $lowestPrice");
 
-        throw new \RuntimeException("BitFinexService class calculatePercentageChange() not working.");
+        $biggestFluctuation = abs($increasePercentage) > abs($decreasePercentage) ? abs($increasePercentage) : abs($decreasePercentage);
+        
+        return $biggestFluctuation;
     }
 }
