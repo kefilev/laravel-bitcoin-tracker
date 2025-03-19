@@ -3,9 +3,8 @@
 namespace App\Services;
 
 use Exception;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
+
 
 class BitFinexService
 {

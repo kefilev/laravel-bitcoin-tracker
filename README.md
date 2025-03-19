@@ -39,19 +39,20 @@ Make sure you have your server, php and mysql running (Latest XAMPP for example)
 
 ## Subscription
 
-To subscribe go to: `/api/subscribe?email={your@email.com}&percent={int or float}&period={1|6|24}`
+To subscribe send a POST request to: `/api/subscribe` with the following body: 
+email={your@email.com}
+percent={int or float}
+period={1|6|24}
 
-For example: `/api/subscribe?email=your@email.com&percent=3&period=24`
+After you subscribe you should receive an email confirming your subscription and a link to unsubscribe. For more realistic scenario an email confirmation link should be provided and the corresponding logic in the backend should be implemented.
 
-After you subscribe you should receive an email confirming your subscription and a link to unsubscribe.
+To unsubscribe go to (GET request): `/api/unsubscribe?email=your@email.com`
 
-To unsubscribe go to: `/api/unsubscribe?email=your@email.com`
-
-For more realistic scenario an encrypted key for each user may be included in the unsubscribe link.
+Using a GET request for the unsubscribe, so it can be accessed from a link. For more realistic scenario an encrypted key for each user must be included in the unsubscribe link. Check Laravel signed urls for more info...
 
 ## Tests
 
-Two additional test files are included in the tests/Feature directory. SubscriptionAPITest.php does HTTP tests the API subscribe and unsubscribe endpoints using PHPUnit. The BitFinexServiceTest.php file tests the BitfinexService.php functions.
+Two additional test files are included in the tests/Feature and tests/Unit/Services directories. SubscriptionAPITest.php does HTTP tests for the API subscribe and unsubscribe endpoints using PHPUnit. The BitFinexServiceTest.php file tests the BitfinexService.php functions.
 
 To run the tests execute `php artisan test` in the console.
 

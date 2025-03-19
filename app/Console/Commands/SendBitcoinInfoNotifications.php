@@ -28,8 +28,7 @@ class SendBitcoinInfoNotifications extends Command
      */
     public function handle()
     {
-        //Get the period from the current console schedule command
-        $period = $this->argument('period');
+        $period = $this->argument('period'); //Get the period from the current console schedule command
         $data = ['period' => $period];
         $currencies = config('services.bitfinex.currencies');
         $bitfinex = new BitFinexService($period);

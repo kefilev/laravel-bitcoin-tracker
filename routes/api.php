@@ -9,6 +9,6 @@ use Illuminate\Support\Facades\Route;
 // })->middleware('auth:sanctum');
 
 Route::controller(SubscriberController::class)->group(function () {
-    Route::get('/subscribe', 'subscribe')->name('subscribe'); //use get to let users subscribe even from the browser
+    Route::post('/subscribe', 'subscribe')->name('subscribe');
     Route::get('/unsubscribe', 'unsubscribe')->name('unsubscribe'); //using get to let users unsubscribe by visiting a link
 });

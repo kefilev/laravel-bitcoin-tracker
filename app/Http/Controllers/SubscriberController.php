@@ -6,42 +6,57 @@ use App\Http\Requests\SubscribeRequest;
 use App\Http\Requests\UnsubscribeRequest;
 use App\Models\Subscriber;
 use App\Notifications\NewSubscriber;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 
 class SubscriberController extends Controller
 {
-    public function subscribe(SubscribeRequest $request) {
+
+    public function subscribe(SubscribeRequest $request): JsonResponse
+    {
         try {
-            //Save to DB
+            // Save to DB
             $subscriber = Subscriber::create($request->only(['email', 'percent', 'period']));
+
+            // Schedule a welcome notification email to the subscriber
+            //TODO - send email confirmation link in the message
+            $subscriber->notify(new NewSubscriber($subscriber->email));
+
+            // Return standardized success response
+            return response()->json([
+                'success' => true,
+                'message' => "Successful Subscription",
+                'data' => $subscriber
+            ], 201); // 201 Created
         } catch (\Exception $e) {
-            Log::error($e->getMessage());
-            // return error
-            return response()->json(['error' => 'Server Error'], 500);
+            Log::error("Subscription Error: " . $e->getMessage());
+
+            // Return standardized error response
+            return response()->json([
+                'success' => false,
+                'message' => 'Subscription failed. Please try again later.'
+            ], 500);
         }
-
-        //Schedule a welcome notification email to the subscriber
-        $subscriber->notify(new NewSubscriber($subscriber->email));
-
-        //Return OK
-        return response()->json(['success' => "You have successfully subscribed your email - {$request->input('email')} for the bitcoin tracker"], 200);
     }
 
-    
-    public function unsubscribe(UnsubscribeRequest $request) {
+    public function unsubscribe(UnsubscribeRequest $request): JsonResponse
+    {
         try {
-            //Delete from DB the unsubscribed user
-            Subscriber::where('email', $request->input('email'))->delete();
+            // Delete subscriber from DB
+            // TODO - include encrypted code in the request (see Laravel signed urls)
+            $deleted = Subscriber::where('email', $request->input('email'))->delete();
 
-            //Schedule a notification to let the subscriber know that he is no longer a subscriber
-            //TODO
+            return response()->json([
+                'success' => true,
+                'message' => "Unsubscribed successfully"
+            ], 200);
         } catch (\Exception $e) {
-            Log::error($e->getMessage());
-            // return error
-            return response()->json(['error' => 'Server Error'], 500);
-        }
+            Log::error("Unsubscribe Error: " . $e->getMessage());
 
-        //Return OK
-        return response()->json(['success' => "You have successfully unsubscribed your email - {$request->input('email')} from the bitcoin tracker"], 200);
+            return response()->json([
+                'success' => false,
+                'message' => 'Unsubscription failed. Please try again later.'
+            ], 500);
+        }
     }
 }
