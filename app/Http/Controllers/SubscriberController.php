@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Log;
 class SubscriberController extends Controller
 {
 
-    public function subscribe(SubscribeRequest $request): SubscriberResource | JsonResponse
+    public function subscribe(SubscribeRequest $request): SubscriberResource|JsonResponse
     {
         try {
             // Save to DB
@@ -22,7 +22,10 @@ class SubscriberController extends Controller
 
             // Schedule a welcome notification email to the subscriber
             //TODO - send email confirmation link in the message
-            $subscriber->notify(new NewSubscriber($subscriber->email));
+            $subscriber->notify(new NewSubscriber([
+                'email' => $subscriber->email,
+                'id' => $subscriber->id
+            ]));
 
             return new SubscriberResource($subscriber);
         } catch (\Exception $e) {
@@ -32,12 +35,14 @@ class SubscriberController extends Controller
         }
     }
 
-    public function unsubscribe(UnsubscribeRequest $request): JsonResponse
+    public function unsubscribe(UnsubscribeRequest $request, int $id): JsonResponse
     {
         try {
             // Delete subscriber from DB
             // TODO - include encrypted code in the request (see Laravel signed urls)
-            Subscriber::where('email', $request->input('email'))->delete();
+            Subscriber::where('id', $id)
+                ->where('email', $request->input('email'))
+                ->delete();
 
             return BaseApiResponse::success();
         } catch (\Exception $e) {

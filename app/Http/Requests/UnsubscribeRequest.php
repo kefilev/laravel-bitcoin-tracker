@@ -24,20 +24,15 @@ class UnsubscribeRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'id' => 'bail|required|integer|exists:subscribers',
             'email' => 'bail|required||email:rfc,dns|exists:subscribers'
         ];
     }
 
-    /**
-     * Custom error messages (Optional)
-     */
-    public function messages(): array
+    public function validationData(): array
     {
-        return [
-            'email.required' => 'Email is required.',
-            'email.email' => 'Provide a valid email address.',
-            'email.exists' => 'This email does not exist in our database.'
-        ];
+        // Merge route parameters into request data for validation
+        return array_merge($this->all(), ['id' => $this->route('id')]);
     }
 
     /**

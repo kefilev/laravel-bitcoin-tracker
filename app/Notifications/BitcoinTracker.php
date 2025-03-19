@@ -49,7 +49,7 @@ class BitcoinTracker extends Notification implements ShouldQueue
         }
 
         return $mailMessage
-            ->action('Unsubscribe', url(route('unsubscribe') . '?email=' . $this->data['email']))
+            ->action('Unsubscribe', url(route('unsubscribe', ['id' => $this->data['id']]) . '?email=' . $this->data['email']))
             ->line('Thank you for using our application!');
     }
 

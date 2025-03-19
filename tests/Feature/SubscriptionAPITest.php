@@ -108,13 +108,13 @@ class SubscriptionAPITest extends TestCase
         ]);
         $response->assertStatus(201);
 
-        $response = $this->get('/api/subscribers/unsubscribe?email=test@test.com');
+        $response = $this->get('/api/subscribers/1/unsubscribe?email=test@test.com');
         $response->assertStatus(200);
     }
 
     public function test_unsubscribe_fails_when_email_not_found_in_DB(): void
     {
-        $response = $this->get('/api/subscribers/unsubscribe?email=test@test.com');
+        $response = $this->get('/api/subscribers/1/unsubscribe?email=test@test.com');
         $response->assertStatus(400);
     }
 }

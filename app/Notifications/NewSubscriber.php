@@ -14,7 +14,7 @@ class NewSubscriber extends Notification implements ShouldQueue
     /**
      * Create a new notification instance.
      */
-    public function __construct(public string $email)
+    public function __construct(public array $data)
     {
         //
     }
@@ -35,9 +35,9 @@ class NewSubscriber extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->line('Hi ' . $this->email . ',')
+            ->line('Hi ' . $this->data['email'] . ',')
             ->line('Welcome to the Bitcoin Tracker App. If you wish to unsubscribe click on the button bellow.')
-            ->action('Unsubscribe', url(route('unsubscribe') . '?email=' . $this->email))
+            ->action('Unsubscribe', url(route('unsubscribe', ['id' => $this->data['id']]) . '?email=' . $this->data['email']))
             ->line('Thank you for using our application!');
     }
 

@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::controller(SubscriberController::class)->group(function () {
     Route::post('/subscribers', 'subscribe')->name('subscribe');
-    
+
     //using get to let users unsubscribe by visiting a link
-    Route::get('/subscribers/unsubscribe', 'unsubscribe')->name('unsubscribe'); 
+    Route::get('/subscribers/{id}/unsubscribe', 'unsubscribe')->name('unsubscribe'); 
 });

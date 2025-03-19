@@ -46,7 +46,7 @@ period={1|6|24}
 
 After you subscribe you should receive an email confirming your subscription and a link to unsubscribe. For more realistic scenario an email confirmation link should be provided and the corresponding logic in the backend should be implemented.
 
-To unsubscribe go to (GET request): `/api/subscribers/unsubscribe?email=your@email.com`
+To unsubscribe go to (GET request): `/api/subscribers/{id}/unsubscribe?email={your@email.com}`
 
 Using a GET request for the unsubscribe, so it can be accessed from a link. For more realistic scenario an encrypted key for each user must be included in the unsubscribe link. Check Laravel signed urls for more info...
 

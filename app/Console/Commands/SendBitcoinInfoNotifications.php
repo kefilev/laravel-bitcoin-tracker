@@ -48,6 +48,7 @@ class SendBitcoinInfoNotifications extends Command
 
                     $data['userPercent'] = $subscriber->percent;
                     $data['email'] = $subscriber->email;
+                    $data['id'] = $subscriber->id;
     
                     $subscriber->notify(new BitcoinTracker($data));
                     break; //send only one email per subscriber

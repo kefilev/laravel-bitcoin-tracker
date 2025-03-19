@@ -11,7 +11,8 @@ class BitFinexService
     private string $baseUrl;
     private string $period;
 
-    public function __construct(string $period) {
+    public function __construct(string $period)
+    {
         $this->baseUrl = config('services.bitfinex.base_url');
         $this->period = $period;
     }
@@ -36,7 +37,7 @@ class BitFinexService
         $decreasePercentage = (($lowestPrice - $startPrice) / $startPrice) * 100;
 
         $biggestFluctuation = max(abs($increasePercentage), abs($decreasePercentage));
-        
+
         return $biggestFluctuation;
     }
 }
