@@ -39,14 +39,14 @@ Make sure you have your server, php and mysql running (Latest XAMPP for example)
 
 ## Subscription
 
-To subscribe send a POST request to: `/api/subscribe` with the following body: 
+To subscribe send a POST request to: `/api/subscribers` with the following body: 
 email={your@email.com}
 percent={int or float}
 period={1|6|24}
 
 After you subscribe you should receive an email confirming your subscription and a link to unsubscribe. For more realistic scenario an email confirmation link should be provided and the corresponding logic in the backend should be implemented.
 
-To unsubscribe go to (GET request): `/api/unsubscribe?email=your@email.com`
+To unsubscribe go to (GET request): `/api/subscribers/unsubscribe?email=your@email.com`
 
 Using a GET request for the unsubscribe, so it can be accessed from a link. For more realistic scenario an encrypted key for each user must be included in the unsubscribe link. Check Laravel signed urls for more info...
 
