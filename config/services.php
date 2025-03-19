@@ -35,7 +35,15 @@ return [
         ],
     ],
 
-    'bitfinex_api' => env('BITFINEX_API_URL'),
-    'bitfinex_currencies' => ['USD', 'EUR']
+    'bitfinex' => [
+        'base_url' => env('BITFINEX_API_URL'),
+        'candle_endpoint' => [
+            '1' =>  'candles/trade:1h:tBTC{{currency}}/hist?limit=1',
+            '6' =>  'candles/trade:6h:tBTC{{currency}}/hist?limit=1',
+            '24' => 'candles/trade:1D:tBTC{{currency}}/hist?limit=1',
+        ],
+        'currencies' => ['USD', 'EUR']
+    ]
+
 
 ];

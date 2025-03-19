@@ -31,12 +31,12 @@ class SendBitcoinInfoNotifications extends Command
         //Get the period from the current console schedule command
         $period = $this->argument('period');
         $data = ['period' => $period];
-        $currencies = config('services.bitfinex_currencies');
-        $bitfinex = new BitFinexService();
+        $currencies = config('services.bitfinex.currencies');
+        $bitfinex = new BitFinexService($period);
 
         foreach($currencies as $currency) {
-            $prices = $bitfinex->getBitcoinPriceHistory($period, $currency);
-            $data['threshold' . $currency] = $bitfinex->getBiggestPriceFluctuation($prices);
+            $fluctuation = $bitfinex->getBitcoinPriceFluctuation($currency);
+            $data['threshold' . $currency] = $fluctuation;
         }
 
         //Get the correct subscribers for this period

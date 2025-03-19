@@ -34,7 +34,7 @@ class BitcoinTracker extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $currencies = config('services.bitfinex_currencies');
+        $currencies = config('services.bitfinex.currencies');
         $hours = $this->data['period'] == 1 ? ' hour.' : ' hours.';
 
         $mailMessage = (new MailMessage)
