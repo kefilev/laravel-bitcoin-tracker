@@ -42,7 +42,12 @@ return [
             '6' =>  'candles/trade:6h:tBTC{{currency}}/hist?limit=1',
             '24' => 'candles/trade:1D:tBTC{{currency}}/hist?limit=1',
         ],
-        'currencies' => ['USD', 'EUR']
+        'currencies' => ['USD', 'EUR'],
+        'candle_index' => [
+            'open' => 1,
+            'high' => 3,
+            'low' => 4
+        ]
     ]
 
 

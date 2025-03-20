@@ -29,9 +29,24 @@ class BitFinexService
 
         $result = collect($response->json())->values()->toArray()[0];
 
-        $startPrice = $result[1];
-        $highestPrice = $result[3];
-        $lowestPrice = $result[4];
+        /* According to documentation for candles - https://docs.bitfinex.com/reference/rest-public-candles
+        Result should be: 
+        [
+            0 => 'MTS',
+            1=> 'OPEN',
+            2=> 'CLOSE',
+            3=> 'HIGH',
+            4=> 'LOW',
+            5=> 'VOLUME',
+        ] */
+
+        $open = config('services.bitfinex.candle_index.open');
+        $high = config('services.bitfinex.candle_index.high');
+        $low = config('services.bitfinex.candle_index.low');
+
+        $startPrice = $result[$open];
+        $highestPrice = $result[$high];
+        $lowestPrice = $result[$low];
 
         $increasePercentage = (($highestPrice - $startPrice) / $startPrice) * 100;
         $decreasePercentage = (($lowestPrice - $startPrice) / $startPrice) * 100;
