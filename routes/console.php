@@ -9,8 +9,9 @@ use Illuminate\Support\Facades\Artisan;
 //     $this->comment(Inspiring::quote());
 // })->purpose('Display an inspiring quote');
 
-//Schedule::command('app:send-bitcoin-info-notifications', ['24'])->everyMinute(); //for testing
+// Schedule::command('app:send-bitcoin-info-notifications', ['24'])->everyMinute(); //for testing
 
-Schedule::command('app:send-bitcoin-info-notifications', ['24'])->daily();
-Schedule::command('app:send-bitcoin-info-notifications', ['6'])->everySixHours();
-Schedule::command('app:send-bitcoin-info-notifications', ['1'])->hourly();
+foreach(config('services.bitfinex.candle_endpoint') as $key => $value) {
+    // Schedule the commands to run every n-th hour ($ket = n)
+    Schedule::command('app:send-bitcoin-info-notifications', [$key])->cron("0 */$key * * *");
+}
