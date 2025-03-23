@@ -29,6 +29,25 @@ MAIL_PASSWORD=....
 BITFINEX_API_URL=https://api-pub.bitfinex.com/v2/
 ```
 
+App configuration is done in config/services.php like this:
+
+```
+'bitfinex' => [
+    'base_url' => env('BITFINEX_API_URL'),
+    'candle_endpoint' => [
+        '1' =>  'candles/trade:1h:tBTC{{currency}}/hist?limit=1',
+        '6' =>  'candles/trade:6h:tBTC{{currency}}/hist?limit=1',
+        '24' => 'candles/trade:1D:tBTC{{currency}}/hist?limit=1',
+    ],
+    'currencies' => ['USD', 'EUR'],
+    'candle_index' => [
+        'open' => 1,
+        'high' => 3,
+        'low' => 4
+    ]
+]
+````
+
 `php artisan key:generate` to generate encryption key for Laravel
 
 `php artisan migrate` to create the database
